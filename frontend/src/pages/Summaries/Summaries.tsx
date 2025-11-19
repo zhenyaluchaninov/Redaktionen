@@ -1,25 +1,34 @@
 /**
  * Summaries page mirrors the original prototype layout and behavior.
  */
-import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { fetchSummaries } from "../../api/summaries";
 import { ContentCard } from "../../components/ContentCard/ContentCard";
 import { MasonryGrid } from "../../components/MasonryGrid/MasonryGrid";
 import { ThemeFilters } from "../../components/ThemeFilters/ThemeFilters";
 import type { ThemeId } from "../../data/themes";
 import { useDarkMode } from "../../hooks/useDarkMode";
-import { summariesContent, summariesSection } from "./mockData";
+import { mapThemeToFactor } from "../../utils/themeMappings";
+import type { ContentItem } from "../../types";
+import { summariesSection } from "./mockData";
 
 const Summaries = () => {
   const { isDarkMode } = useDarkMode();
   const [activeTheme, setActiveTheme] = useState<ThemeId>("all");
+  const activeFactor = mapThemeToFactor(activeTheme);
 
-  const filteredContent = useMemo(() => {
-    if (activeTheme === "all") {
-      return summariesContent;
-    }
+  const {
+    data: summaries = [],
+    isLoading,
+    isError,
+  } = useQuery<ContentItem[]>({
+    queryKey: ["summaries", activeFactor ?? "all"],
+    queryFn: () => fetchSummaries({ factor: activeFactor }),
+    staleTime: 0,
+  });
 
-    return summariesContent.filter((item) => item.theme === activeTheme);
-  }, [activeTheme]);
+  const shouldRenderGrid = !isLoading && !isError && summaries.length > 0;
 
   return (
     <>
@@ -49,10 +58,30 @@ const Summaries = () => {
       <ThemeFilters activeTheme={activeTheme} onThemeChange={setActiveTheme} />
 
       <section className="max-w-6xl mx-auto px-6 py-8">
-        <MasonryGrid
-          items={filteredContent}
-          renderItem={(item) => <ContentCard key={item.id} item={item} />}
-        />
+        {isLoading && (
+          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            Loading summaries...
+          </p>
+        )}
+
+        {isError && (
+          <p className="text-sm text-red-500">
+            Something went wrong while loading summaries.
+          </p>
+        )}
+
+        {shouldRenderGrid ? (
+          <MasonryGrid
+            items={summaries}
+            renderItem={(item) => <ContentCard key={item.id} item={item} />}
+          />
+        ) : null}
+
+        {!isLoading && !isError && summaries.length === 0 && (
+          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            No summaries to show right now.
+          </p>
+        )}
 
         <div className="flex justify-center mt-6">
           <button

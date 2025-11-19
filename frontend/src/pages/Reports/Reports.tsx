@@ -1,25 +1,34 @@
 /**
  * Reports page mirrors the original prototype layout and behavior.
  */
-import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { fetchReports } from "../../api/reports";
 import { ContentCard } from "../../components/ContentCard/ContentCard";
 import { MasonryGrid } from "../../components/MasonryGrid/MasonryGrid";
 import { ThemeFilters } from "../../components/ThemeFilters/ThemeFilters";
 import type { ThemeId } from "../../data/themes";
 import { useDarkMode } from "../../hooks/useDarkMode";
-import { reportsContent, reportsSection } from "./mockData";
+import { mapThemeToFactor } from "../../utils/themeMappings";
+import type { ContentItem } from "../../types";
+import { reportsSection } from "./mockData";
 
 const Reports = () => {
   const { isDarkMode } = useDarkMode();
   const [activeTheme, setActiveTheme] = useState<ThemeId>("all");
+  const activeFactor = mapThemeToFactor(activeTheme);
 
-  const filteredContent = useMemo(() => {
-    if (activeTheme === "all") {
-      return reportsContent;
-    }
+  const {
+    data: reports = [],
+    isLoading,
+    isError,
+  } = useQuery<ContentItem[]>({
+    queryKey: ["reports", activeFactor ?? "all"],
+    queryFn: () => fetchReports({ factor: activeFactor }),
+    staleTime: 0,
+  });
 
-    return reportsContent.filter((item) => item.theme === activeTheme);
-  }, [activeTheme]);
+  const shouldRenderGrid = !isLoading && !isError && reports.length > 0;
 
   return (
     <>
@@ -49,10 +58,30 @@ const Reports = () => {
       <ThemeFilters activeTheme={activeTheme} onThemeChange={setActiveTheme} />
 
       <section className="max-w-6xl mx-auto px-6 py-8">
-        <MasonryGrid
-          items={filteredContent}
-          renderItem={(item) => <ContentCard key={item.id} item={item} />}
-        />
+        {isLoading && (
+          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            Loading reports...
+          </p>
+        )}
+
+        {isError && (
+          <p className="text-sm text-red-500">
+            Something went wrong while loading reports.
+          </p>
+        )}
+
+        {shouldRenderGrid ? (
+          <MasonryGrid
+            items={reports}
+            renderItem={(item) => <ContentCard key={item.id} item={item} />}
+          />
+        ) : null}
+
+        {!isLoading && !isError && reports.length === 0 && (
+          <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+            No reports to show right now.
+          </p>
+        )}
 
         <div className="flex justify-center mt-6">
           <button

@@ -1,4 +1,16 @@
 /**
- * Placeholder helper for formatting date values consistently.
+ * Formats ISO strings into a short locale-friendly timestamp.
  */
-export const formatDate = (isoDate: string): string => isoDate;
+const formatter = new Intl.DateTimeFormat("sv-SE", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+export const formatDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return isoDate;
+  }
+
+  return formatter.format(date);
+};

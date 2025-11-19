@@ -4,7 +4,7 @@
 import type { ThemeId } from "../data/themes";
 
 export interface ContentItem {
-  id: number;
+  id: number | string;
   theme: ThemeId;
   title: string;
   summary: string;
