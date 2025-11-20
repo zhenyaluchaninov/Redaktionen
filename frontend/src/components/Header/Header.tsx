@@ -56,7 +56,7 @@ export const Header = () => {
             </span>
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             <nav className="flex items-center gap-3 text-sm">
               <NavLink
                 to="/"
