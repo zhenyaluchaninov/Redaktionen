@@ -56,5 +56,8 @@ export const fetchSummaries = async (
     summary: summary.body,
     time: formatDate(summary.date ?? summary.created_at),
     source: extractSourceName(summary.sourceUrl) ?? summary.scope,
+    sourceUrl: summary.sourceUrl,
+    scope: summary.scope,
+    posterUrl: summary.posterUrl,
   }));
 };

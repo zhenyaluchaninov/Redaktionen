@@ -41,5 +41,6 @@ export const fetchSignals = async (
     summary: signal.summary,
     time: formatDate(signal.date ?? signal.created_at),
     source: signal.source ?? undefined,
+    sourceUrl: signal.sourceUrl,
   }));
 };

@@ -73,5 +73,80 @@
         "created_at": "2025-10-10T14:42:56.745211+00:00"
       }
     ]
+  },
+  {
+    "id": "f0bf90e7-56af-40f2-8521-e85a01fb6d6e",
+    "created_at": "2025-11-20T09:13:13.093036+00:00",
+    "title": "Nvidia levererar rekord och tonar ned AI‑bubbla; Trumps G20‑bojkott skuggar toppmöte; utlämnad gängmisstänkt till Sverige – läget 20 november",
+    "lede": "Nvidia rapporterar rekordintäkter och en stark prognos, vilket dämpar tal om en AI‑bubbla och lyfter chip‑ och infrastrukturaktier. Samtidigt uppger Financial Times att Donald Trump helt bojkottar årets G20‑toppmöte, något som enligt diplomater hotar gruppens relevans. I Sverige har en i utevaro häktad man i 40‑årsåldern utlämnats från Marocko för synnerligen grovt narkotikabrott, medan kraftigt snöfall lamslog trafiken på E4 söder om Söderhamn och Norrbottens kommuner protesterar mot ett uranförslag som kan avskaffa det kommunala vetot.",
+    "body": "## Kontext/Bakgrund\n- AI‑chipboomen fortsätter att drivas av datacenter och generativ AI, samtidigt som USA:s exportrestriktioner mot Kina påverkar produktmix och leveranser.\n- G20 är den främsta globala arenan för ekonomisk samordning; frånvaron av USA:s ledare påverkar förmågan att enas i handel-, skuld- och utvecklingsfrågor.\n- Sverige skärper internationellt rättssamarbete mot gängkriminalitet; parallellt prövas civilförsvar och infrastruktur av tidiga vinteroväder.\n- EU har de senaste åren skärpt regler för medier, jordbruk och fiske samt stärkt skyddet för geografiska beteckningar.\n\n## Detaljer/Bevis\n- Nvidia\n  - Omsättning Q3: 57 miljarder USD (+62 % år/år); GAAP‑vinst: 32 miljarder USD (+65 %). Datacenter: 51,2 miljarder USD (+25 % kv/kv, +66 % år/år). Gaming: 4,2 miljarder USD; övrigt ca 5,8 miljarder USD. Prognos Q4: 65 miljarder USD. Aktien steg över 4 % i efterhandel. (TechCrunch)\n  - VD Jensen Huang säger att stark och bred efterfrågan motbevisar en ”AI‑bubbla”. CFO pekar på AI‑fabriks-/infrastrukturprojekt motsvarande ca 5 miljoner GPU:er. Leveranser av H20‑GPU:er är svagare än väntat bl.a. p.g.a. Kina‑restriktioner. (TechCrunch, FT FirstFT)\n  - Feber noterar att rapporten slog marknadens förväntningar.\n- G20\n  - Donald Trump bojkottar helt årets G20‑möte. En hög europeisk diplomat beskriver läget som ”dystert”. FT bedömer att bojkotten undergräver USA:s inflytande och G20:s förmåga till gemensam styrning i handel och ekonomi; Afrika‑frågor och ledare som Cyril Ramaphosa lyfts som centrala i år. (Financial Times)\n- Sverige: utlämning\n  - En svensk man i 40‑årsåldern, internationellt efterlyst och häktad i sin utevaro 2023 för synnerligen grovt narkotikabrott, utlämnas från Marocko. Första utlämningsframställan skickades i april 2025. (SVT)\n  - Utlämningen sker kort efter att justitieminister Gunnar Strömmer och biträdande rikspolischefen Stefan Hector besökt Marocko och undertecknat ett avtal mot gränsöverskridande brottslighet. Strömmer säger att personen nu ska ställas inför rätta i Sverige; Hector menar att gemensamma satsningar ger effekt. Statsminister Ulf Kristersson skriver att gängkriminella inte är säkra någonstans. (SVT)\n- Väder/infra\n  - Kraftigt snöfall: Långa köer på E4 söder om Söderhamn efter nattliga olyckor, bl.a. kollision 00.08 där en person fördes vaken till sjukhus med bröst‑ och nacksmärtor. Plogning försvårades; två påfarter stängdes 08.30 för att ploga mot trafiken. Trafikverket skickar bandvagnar för evakuering/förnödenheter. E16 Gävle–Falun stängdes 09.30 för bärgning (ca 30 min). Frivilliga Flygkåren ställde in överflygningar p.g.a. snö. (SVT)\n- Energi/kommunalt självstyre\n  - Samtliga 14 norrbottniska kommuner säger nej till ett departementsförslag att uranbrytning inte längre ska klassas som kärnteknisk verksamhet, vilket skulle ta bort det kommunala vetot. Påvisade tillgångar finns bl.a. i Pleutajokk (Arjeplog), Kvarnån (Boden) och Pålänge (Kalix). Birgitta Larsson (S), ordf. Norrbottens kommuner, kallar det ett hot mot invånarnas inflytande. Departementet har inte kommenterat. (SVT)\n- Fordon/handel\n  - Europeiska biltillverkare riskerar tappa plug‑in‑hybridsegmentet till kinesiska grupper som BYD. Höga EU‑tullar på elbilar har styrt kinesiska aktörer mot billiga, tekniskt avancerade PHEV:er anpassade för Europa, vilket pressar pris och teknik och ökar EU–Kina‑spänningar. (Financial Times)\n- Bolag/teknik\n  - Monarch Tractor varnar internt för upp till 102 varsel och möjlig nedläggning; pivot från traktortillverkning till mjukvara/licensiering pågår. Har tagit in minst 220 MUSD (varav 133 MUSD 2024) och säger sig ha skickat drygt 500 traktorer. Förlorade kontraktstillverkaren Foxconn, stäms av återförsäljaren Burks Tractor för påstått defekta fordon; företaget bestrider. Oklart aktuellt personalantal (ca 300 i slutet av 2024). (TechCrunch)\n- Politik/myndigheter i Sverige\n  - MSB byter namn till Myndigheten för civilt försvar nästa år. (Feber)\n  - Hushållens sparande ökade till 35 miljarder kronor under Q3. (Feber)\n- EU‑policy (urval, bakgrund)\n  - Media Freedom Act gäller fullt ut i EU sedan 8 aug 2025: starkare skydd för journalister, transparens i ägande/statlig annonsering och begränsning av godtycklig nedtagning av oberoende medieinnehåll. (Europaparlamentet)\n  - Fiskekontroll: Europaparlamentet godkände 17 okt 2023 nya kontrollregler med full digital spårbarhet, positionering av fartyg och harmoniserade sanktioner; CCTV för hög‑risk‑fartyg ≥18 m inom fyra år. (Europaparlamentet)\n  - Geografiska beteckningar: överenskommelse med rådet stärker skydd online (t.ex. geoblockering) och producentgruppers rättigheter. (Europaparlamentet)\n  - Livsmedelssäkerhet: EP kräver EU‑plan för att minska importberoende, investera i teknik/vatten och motverka matsvinn. (Europaparlamentet)\n- Kultur/techperspektiv\n  - TechCrunch analyserar hur Ghost in the Shell förutsåg moderna cybersäkerhetshot som statliga APT‑operationer, signatur/heuristik, proxy‑nät och etiska frågor kring avancerad AI.\n\n## Effekter/Konsekvenser\n- Nvidia bekräftar global kapacitetsexpansion för AI‑infrastruktur; exportregler mot Kina och produktmix (H20) förblir en risk. Styrkan ger bränsle åt bred halvledar- och molnhandel.\n- G20 utan USA:s närvaro försvagar forumets möjlighet att leverera gemensamma beslut i ekonomi, skuld och utveckling – med potentiella följder för tillväxtmarknader och Afrika‑agendan.\n- Utlämningen från Marocko signalerar fördjupat svenskt rättssamarbete och kan öka trycket på gängledare utomlands.\n- Snökaoset blottar sårbarheter i vinterberedskap och logistik; kan påverka transporter, arbetspendling och utryckningar regionalt.\n- Uranförslaget ställer statliga energi‑/råvarumål mot kommunalt självstyre; snabbare tillstånd kan gynna utvinning men riskerar lokala konflikter.\n- Kinesiska PHEV‑satsningar kan pressa EU‑tillverkare till snabbare innovation/prisjusteringar och öka handelspolitiska spänningar.\n- Monarchs kris kan kyla investeringsaptit i autonoma jordbruksfordon och påverka leverantörskedjor och arbetstillfällen.\n- EMFA skärper medieskydd men kräver effektiv nationell efterlevnad för att få faktisk verkan.\n\n## Nästa steg\n- Nvidia: följs upp med Q4‑utfall och leveransläge för Blackwell/Blackwell Ultra samt effekter av Kina‑restriktioner.\n- G20: bevaka agendan och vilka bilaterala möten/utfall som uteblir p.g.a. bojkotten.\n- Utlämningen: åtalstidplan och rättegång i svensk domstol.\n- Väder: fortsatt plogning/evakuering vid E4/E16; uppdaterade vädervarningar och reseavrådan.\n- Uran: departementets remiss/kommentar, eventuell proposition och riksdagsbehandling; kommunernas fortsatta åtgärder.\n- EU–Kina bilhandel: besked om tullar, regler för PHEV och eventuella motåtgärder.\n- Monarch Tractor: besked om varsel/nedläggning och utfall i pågående stämning.\n- EMFA: nationella genomförandebeslut, tillsynsstrukturer och praxisfall.\n\n## Osäkerheter/Avvikelser\n- G20‑bojkotten rapporteras av FT med diplomatkällor; ingen detaljerad officiell amerikansk motivering redovisad i underlaget.\n- Monarchs aktuella personalstyrka och likviditet är oklara; bolaget har inte omgående kommenterat.\n- MSB:s namnbyte rapporteras av Feber; detaljerad regeringsförordning/ikraftträdandedatum ej specificerat i underlaget.\n- Identitet och exakt rättsligt läge för den utlämnade är inte offentligt i källan.\n\n## Intern källista\n- Financial Times (20 nov 2025): Trumps G20‑bojkott; FirstFT om Nvidia; EU PHEV‑konkurrens\n- TechCrunch (19–20 nov 2025): Nvidia Q3‑siffror; Monarch Tractor; Ghost in the Shell‑analys\n- SVT Nyheter (20 nov 2025): Utlämning från Marocko; Snökaos på E4/E16\n- Feber (19–20 nov 2025): MSB namnbyte; Hushållens sparande; Nvidia slog förväntningarna\n- Europaparlamentet (2023–2025): EMFA; fiskekontroll; GI‑lag; livsmedelssäkerhetsresolution; Sakharovpriset 2024; Navalnaya‑debatt",
+    "author": "Summary editor",
+    "posterUrl": null,
+    "type": "summary",
+    "factors": [
+      "political",
+      "economic",
+      "social",
+      "technological",
+      "environmental",
+      "legal"
+    ],
+    "perspective": null,
+    "sources": [
+      {
+        "id": 37,
+        "url": "https://www.svt.se/rss.xml",
+        "type": "rss",
+        "factor": "political",
+        "source": "SVT",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      },
+      {
+        "id": 38,
+        "url": "https://www.ft.com/global-economy?format=rss",
+        "type": "rss",
+        "factor": "economic",
+        "source": "Financial Times",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      },
+      {
+        "id": 39,
+        "url": "https://feber.se/samhalle/rss",
+        "type": "rss",
+        "factor": "social",
+        "source": "Feber",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      },
+      {
+        "id": 40,
+        "url": "https://techcrunch.com/feed/",
+        "type": "rss",
+        "factor": "technological",
+        "source": "TechCrunch",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      },
+      {
+        "id": 41,
+        "url": "https://www.europarl.europa.eu/rss/topic/904/en.xml",
+        "type": "rss",
+        "factor": "environmental",
+        "source": "Europaparlamentet",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      },
+      {
+        "id": 42,
+        "url": "https://www.europarl.europa.eu/rss/topic/902/en.xml",
+        "type": "rss",
+        "factor": "legal",
+        "source": "Europaparlamentet",
+        "agency_id": null,
+        "created_at": "2025-10-10T14:42:56.745211+00:00"
+      }
+    ]
   }
 ]

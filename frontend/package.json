@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "fetch-api": "node scripts/fetchApiData.js"
+    "fetch-api": "node scripts/fetchApiData.js",
+    "snapshot": "node scripts/snapshotApi.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.10",

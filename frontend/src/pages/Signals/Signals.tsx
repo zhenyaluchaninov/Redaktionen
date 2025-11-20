@@ -73,7 +73,15 @@ const Signals = () => {
         {shouldRenderGrid ? (
           <MasonryGrid
             items={signals}
-            renderItem={(item) => <ContentCard key={item.id} item={item} />}
+            renderItem={(item) => (
+              <ContentCard
+                key={item.id}
+                item={item}
+                showImage={false}
+                linkHref={item.sourceUrl}
+                disableSourceChip
+              />
+            )}
           />
         ) : null}
 
@@ -83,18 +91,6 @@ const Signals = () => {
           </p>
         )}
 
-        <div className="flex justify-center mt-6">
-          <button
-            type="button"
-            className={`px-6 py-3 rounded-lg text-sm font-medium transition-colors ${
-              isDarkMode
-                ? "border border-gray-700 text-gray-300 hover:bg-gray-800"
-                : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            Load more
-          </button>
-        </div>
       </section>
     </>
   );

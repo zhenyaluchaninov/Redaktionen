@@ -1,6 +1,7 @@
 /**
  * Rich card component that mirrors the prototype design pixel-for-pixel.
  */
+import { useState } from "react";
 import { themes } from "../../data/themes";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import type { ContentItem } from "../../types";
@@ -9,10 +10,13 @@ import { getThemeColor } from "../../utils/getThemeColor";
 
 type ContentCardProps = {
   item: ContentItem;
+  showImage?: boolean;
+  linkHref?: string;
+  disableSourceChip?: boolean;
 };
 
 const PlaceholderSVG = ({ isDarkMode }: { isDarkMode: boolean }) => (
-  <svg viewBox="0 0 400 180" className="w-full h-auto rounded-lg mb-4">
+  <svg viewBox="0 0 400 180" className="w-full h-auto rounded-lg">
     <rect width="400" height="180" fill={isDarkMode ? "#1F2937" : "#F3F4F6"} />
     <rect
       x="20"
@@ -73,20 +77,72 @@ const PlaceholderSVG = ({ isDarkMode }: { isDarkMode: boolean }) => (
   </svg>
 );
 
-export const ContentCard = ({ item }: ContentCardProps) => {
+export const ContentCard = ({
+  item,
+  showImage = true,
+  linkHref,
+  disableSourceChip = false,
+}: ContentCardProps) => {
   const { isDarkMode } = useDarkMode();
   const color = getThemeColor(item.theme);
   const themeName = themes.find((theme) => theme.id === item.theme)?.name;
+  const [imageFailed, setImageFailed] = useState(false);
+
+  const truncateSummary = (text: string, limit = 220) => {
+    if (text.length <= limit) return text;
+    const sliced = text.slice(0, limit);
+    const lastSpace = sliced.lastIndexOf(" ");
+    const safeCut = lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
+    return `${safeCut.trimEnd()}…`;
+  };
+
+  const shouldShowPoster = showImage && item.posterUrl && !imageFailed;
+
+  const Wrapper: React.ComponentType<{ children: React.ReactNode }> = linkHref
+    ? ({ children }) => (
+        <a
+          href={linkHref}
+          target="_blank"
+          rel="noreferrer"
+          className={`block no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+            isDarkMode
+              ? "focus-visible:ring-gray-500 focus-visible:ring-offset-gray-900"
+              : "focus-visible:ring-gray-400 focus-visible:ring-offset-white"
+          }`}
+        >
+          {children}
+        </a>
+      )
+    : ({ children }) => <>{children}</>;
 
   return (
-    <article
-      className={`${
-        isDarkMode
-          ? "bg-gray-900 border-gray-800 hover:border-gray-700"
-          : "bg-white border-gray-200 hover:border-gray-300"
-      } border rounded-xl p-5 cursor-pointer transition-all hover:shadow-lg mb-5`}
-    >
-      <PlaceholderSVG isDarkMode={isDarkMode} />
+    <Wrapper>
+      <article
+        className={`${
+          isDarkMode
+            ? "bg-gray-900 border-gray-800 hover:border-gray-700"
+            : "bg-white border-gray-200 hover:border-gray-300"
+        } border rounded-xl p-5 cursor-pointer transition-all hover:shadow-lg mb-5`}
+      >
+      {showImage ? (
+        <div
+          className={`mb-4 overflow-hidden rounded-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-gray-100"
+          }`}
+        >
+          {shouldShowPoster ? (
+            <img
+              src={item.posterUrl}
+              alt={item.title}
+              className="w-full h-auto block"
+              loading="lazy"
+              onError={() => setImageFailed(true)}
+            />
+          ) : (
+            <PlaceholderSVG isDarkMode={isDarkMode} />
+          )}
+        </div>
+      ) : null}
 
       <div className="flex items-center gap-2 mb-3">
         <span
@@ -119,15 +175,38 @@ export const ContentCard = ({ item }: ContentCardProps) => {
           isDarkMode ? "text-gray-400" : "text-gray-600"
         }`}
       >
-        {item.summary}
+        {truncateSummary(item.summary)}
       </p>
 
       <div
-        className={`flex items-center gap-4 text-xs ${
+        className={`flex items-center gap-4 flex-wrap text-xs ${
           isDarkMode ? "text-gray-500" : "text-gray-400"
         }`}
       >
-        {item.source && <span>{item.source}</span>}
+        {item.source && !disableSourceChip && !linkHref && (
+          item.sourceUrl ? (
+            <a
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border transition-colors ${
+                isDarkMode
+                  ? "border-gray-700/80 bg-gray-800 text-gray-200 hover:bg-gray-700"
+                  : "border-[rgb(237,237,237)] bg-gray-50 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {item.source}
+            </a>
+          ) : (
+            <span>{item.source}</span>
+          )
+        )}
+        {item.source && (disableSourceChip || linkHref) && (
+          <span className={isDarkMode ? "text-gray-200" : "text-gray-400"}>
+            {item.source}
+          </span>
+        )}
+
         {item.signals && (
           <span className="flex items-center gap-1">
             <svg
@@ -164,26 +243,55 @@ export const ContentCard = ({ item }: ContentCardProps) => {
             {item.sources} sources
           </span>
         )}
-        {item.confidence && (
-          <span
-            className={`flex items-center gap-1 ml-auto px-2 py-0.5 rounded ${
-              item.confidence >= 90
-                ? isDarkMode
-                  ? "bg-emerald-900/30 text-emerald-400"
-                  : "bg-emerald-50 text-emerald-600"
-                : item.confidence >= 80
-                ? isDarkMode
-                  ? "bg-amber-900/30 text-amber-400"
-                  : "bg-amber-50 text-amber-600"
-                : isDarkMode
-                ? "bg-red-900/30 text-red-400"
-                : "bg-red-50 text-red-600"
-            }`}
-          >
-            {item.confidence}%
-          </span>
-        )}
+
+        <div className="flex items-center gap-3 ml-auto">
+          {item.scope && (
+            <span
+              className={`inline-flex items-center gap-1 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18" />
+                <path d="M12 3a15 15 0 010 18" />
+                <path d="M12 3a15 15 0 010 18" transform="rotate(90 12 12)" />
+              </svg>
+              {item.scope}
+            </span>
+          )}
+
+          {item.confidence && (
+            <span
+              className={`flex items-center gap-1 px-2 py-0.5 rounded ${
+                item.confidence >= 90
+                  ? isDarkMode
+                    ? "bg-emerald-900/30 text-emerald-400"
+                    : "bg-emerald-50 text-emerald-600"
+                  : item.confidence >= 80
+                  ? isDarkMode
+                    ? "bg-amber-900/30 text-amber-400"
+                    : "bg-amber-50 text-amber-600"
+                  : isDarkMode
+                  ? "bg-red-900/30 text-red-400"
+                  : "bg-red-50 text-red-600"
+              }`}
+            >
+              {item.confidence}%
+            </span>
+          )}
+        </div>
       </div>
-    </article>
+      </article>
+    </Wrapper>
   );
 };

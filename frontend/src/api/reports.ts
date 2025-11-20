@@ -52,5 +52,6 @@ export const fetchReports = async (
     time: formatDate(report.created_at),
     source: report.sources?.[0]?.source,
     sources: report.sources?.length,
+    posterUrl: report.posterUrl,
   }));
 };

@@ -9,7 +9,10 @@ export interface ContentItem {
   title: string;
   summary: string;
   time: string;
+  posterUrl?: string;
   source?: string;
+  sourceUrl?: string;
+  scope?: string;
   signals?: number;
   sources?: number;
   confidence?: number;
