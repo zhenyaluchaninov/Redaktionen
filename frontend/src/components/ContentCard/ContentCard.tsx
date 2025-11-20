@@ -2,6 +2,7 @@
  * Rich card component that mirrors the prototype design pixel-for-pixel.
  */
 import { useState } from "react";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { themes } from "../../data/themes";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import type { ContentItem } from "../../types";
@@ -251,21 +252,7 @@ export const ContentCard = ({
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M3 12h18" />
-                <path d="M12 3a15 15 0 010 18" />
-                <path d="M12 3a15 15 0 010 18" transform="rotate(90 12 12)" />
-              </svg>
+              <GlobeAltIcon className="w-4 h-4 text-gray-400" />
               {item.scope}
             </span>
           )}

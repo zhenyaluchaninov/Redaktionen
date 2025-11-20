@@ -12,6 +12,7 @@
     "snapshot": "node scripts/snapshotApi.js"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tanstack/react-query": "^5.90.10",
     "node-fetch": "^2.7.0",
     "react": "^19.2.0",

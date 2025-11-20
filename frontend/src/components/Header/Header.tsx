@@ -1,17 +1,25 @@
 /**
  * Sticky top navigation that mirrors the prototype header.
  */
+import { Fragment } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useDarkMode } from "../../hooks/useDarkMode";
 
-const navItems = [
-  { label: "Reports", path: "/reports" },
-  { label: "Summaries", path: "/summaries" },
+const primaryNavItems = [
   { label: "Signals", path: "/signals" },
+  { label: "Summaries", path: "/summaries" },
+  { label: "Reports", path: "/reports" },
 ];
 
 export const Header = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const separatorColor = isDarkMode ? "bg-gray-600" : "bg-gray-300";
+  const arrowColor = isDarkMode ? "text-gray-500" : "text-gray-300";
+  const underlineStyle = {
+    background: "linear-gradient(135deg, #A855F7 0%, #EC4899 100%)",
+    bottom: "0.35rem",
+  };
 
   return (
     <header
@@ -49,40 +57,76 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center gap-6">
-            <nav className="flex items-center gap-6 text-sm">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `relative pb-1 transition-colors ${
-                      isActive
-                        ? isDarkMode
-                          ? "text-white font-medium"
-                          : "text-gray-900 font-medium"
-                        : isDarkMode
-                        ? "text-gray-400 hover:text-white"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      {item.label}
-                      {isActive && (
-                        <span
-                          className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, #A855F7 0%, #EC4899 100%)",
-                          }}
-                        />
-                      )}
-                    </>
+            <nav className="flex items-center gap-3 text-sm">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `relative inline-flex h-9 items-center transition-colors ${
+                    isActive
+                      ? "text-rose-500 font-semibold"
+                      : isDarkMode
+                      ? "text-gray-400 hover:text-white"
+                      : "text-gray-500 hover:text-gray-900"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    Home
+                    {isActive && (
+                      <span
+                        className="absolute left-0 right-0 h-0.5 rounded-full"
+                        style={underlineStyle}
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+              <span
+                aria-hidden="true"
+                className={`h-1 w-1 rounded-full ${separatorColor}`}
+              />
+              {primaryNavItems.map((item, index) => (
+                <Fragment key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `relative inline-flex h-9 items-center transition-colors ${
+                        isActive
+                          ? isDarkMode
+                            ? "text-white font-medium"
+                            : "text-gray-900 font-medium"
+                          : isDarkMode
+                          ? "text-gray-400 hover:text-white"
+                          : "text-gray-500 hover:text-gray-900"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {item.label}
+                        {isActive && (
+                          <span
+                            className="absolute left-0 right-0 h-0.5 rounded-full"
+                            style={underlineStyle}
+                          />
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                  {index < primaryNavItems.length - 1 && (
+                    <ChevronRightIcon
+                      className={`w-4 h-4 ${arrowColor}`}
+                      aria-hidden="true"
+                    />
                   )}
-                </NavLink>
+                </Fragment>
               ))}
             </nav>
+            <span
+              aria-hidden="true"
+              className={`h-1 w-1 rounded-full ${separatorColor}`}
+            />
             <div className="flex items-center gap-4">
               <button
                 type="button"
