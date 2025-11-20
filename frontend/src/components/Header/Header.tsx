@@ -1,7 +1,7 @@
 /**
  * Sticky top navigation that mirrors the prototype header.
  */
-import { Fragment } from "react";
+import { Fragment, useLayoutEffect, useRef } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useDarkMode } from "../../hooks/useDarkMode";
@@ -14,6 +14,7 @@ const primaryNavItems = [
 
 export const Header = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const headerRef = useRef<HTMLElement | null>(null);
   const separatorColor = isDarkMode ? "bg-gray-600" : "bg-gray-300";
   const arrowColor = isDarkMode ? "text-gray-500" : "text-gray-300";
   const underlineStyle = {
@@ -21,8 +22,24 @@ export const Header = () => {
     bottom: "0.35rem",
   };
 
+  useLayoutEffect(() => {
+    const updateHeaderHeight = () => {
+      if (!headerRef.current) return;
+      const { height } = headerRef.current.getBoundingClientRect();
+      document.documentElement.style.setProperty(
+        "--header-height",
+        `${height}px`
+      );
+    };
+
+    updateHeaderHeight();
+    window.addEventListener("resize", updateHeaderHeight);
+    return () => window.removeEventListener("resize", updateHeaderHeight);
+  }, []);
+
   return (
     <header
+      ref={headerRef}
       className={`${
         isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
       } border-b sticky top-0 z-10`}

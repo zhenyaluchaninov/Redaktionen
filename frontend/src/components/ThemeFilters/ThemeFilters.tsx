@@ -31,7 +31,8 @@ export const ThemeFilters = ({
     <div
       className={`${
         isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
-      } border-b sticky top-[73px] z-10`}
+      } border-b sticky z-10`}
+      style={{ top: "var(--header-height, 72px)" }}
     >
       <div className="max-w-6xl mx-auto px-6 py-3">
         <div className="flex items-center gap-2 overflow-x-auto">
