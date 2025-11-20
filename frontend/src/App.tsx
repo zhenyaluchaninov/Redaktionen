@@ -11,12 +11,12 @@ const App = () => {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen flex flex-col ${
         isDarkMode ? "bg-gray-950 text-gray-100" : "bg-gray-50 text-gray-900"
       }`}
     >
       <Header />
-      <main>
+      <main className="flex-1">
         <Outlet />
       </main>
       <Footer />

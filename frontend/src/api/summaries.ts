@@ -19,10 +19,6 @@ interface SummaryApiResponse {
   posterUrl?: string;
 }
 
-export interface FetchSummariesOptions {
-  factor?: string;
-}
-
 const extractSourceName = (url?: string): string | undefined => {
   if (!url) {
     return undefined;
@@ -36,18 +32,8 @@ const extractSourceName = (url?: string): string | undefined => {
   }
 };
 
-export const fetchSummaries = async (
-  options?: FetchSummariesOptions
-): Promise<ContentItem[]> => {
-  const searchParams = new URLSearchParams();
-  if (options?.factor) {
-    searchParams.append("factor", options.factor);
-  }
-
-  const query = searchParams.toString();
-  const endpoint = `/summaries${query ? `?${query}` : ""}`;
-
-  const data = await apiClient<SummaryApiResponse[]>({ endpoint });
+export const fetchSummaries = async (): Promise<ContentItem[]> => {
+  const data = await apiClient<SummaryApiResponse[]>({ endpoint: "/summaries" });
 
   return data.map((summary) => ({
     id: summary.id,

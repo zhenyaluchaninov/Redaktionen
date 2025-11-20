@@ -27,22 +27,8 @@ interface ReportApiResponse {
   sources?: ReportSource[];
 }
 
-export interface FetchReportsOptions {
-  factor?: string;
-}
-
-export const fetchReports = async (
-  options?: FetchReportsOptions
-): Promise<ContentItem[]> => {
-  const searchParams = new URLSearchParams();
-  if (options?.factor) {
-    searchParams.append("factor", options.factor);
-  }
-
-  const query = searchParams.toString();
-  const endpoint = `/reports${query ? `?${query}` : ""}`;
-
-  const data = await apiClient<ReportApiResponse[]>({ endpoint });
+export const fetchReports = async (): Promise<ContentItem[]> => {
+  const data = await apiClient<ReportApiResponse[]>({ endpoint: "/reports" });
 
   return data.map((report) => ({
     id: report.id,
