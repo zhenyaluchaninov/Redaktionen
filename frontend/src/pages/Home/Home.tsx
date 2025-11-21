@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import type { ThemeId, ThemeOption } from "../../data/themes";
@@ -30,7 +30,7 @@ type PipelineStep = {
   id: string;
   title: string;
   summary: string;
-  icon: JSX.Element;
+  icon: ReactNode;
   metric?: {
     value: number;
     label?: string;
@@ -453,11 +453,10 @@ const PipelineStepCard = ({
 };
 
 type ArrowConnectorProps = {
-  index: number;
   isActive: boolean;
 };
 
-const ArrowConnector = ({ index, isActive }: ArrowConnectorProps) => {
+const ArrowConnector = ({ isActive }: ArrowConnectorProps) => {
   const variants = getArrowVariants(isActive);
 
   return (
@@ -526,10 +525,7 @@ const Home = () => {
               isDarkMode={isDarkMode}
             />
             {index < pipelineSteps.length - 1 ? (
-              <ArrowConnector
-                index={index}
-                isActive={index === activeArrowIndex}
-              />
+              <ArrowConnector isActive={index === activeArrowIndex} />
             ) : null}
           </Fragment>
         ))}
