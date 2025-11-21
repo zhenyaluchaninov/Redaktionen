@@ -3,7 +3,7 @@ import type { ContentItem } from "../../types";
 export const summariesSection = {
   title: "Summaries",
   description:
-    "Condensed briefings from Correspondent agents. Each summary synthesizes multiple signals, verifies facts across sources, and presents key information in structured format.",
+    "Condensed briefings produced by Correspondent agents. Each summary synthesizes multiple signals, verifies facts across sources, and presents key insights in a structured, readable format.",
 };
 
 export const summariesContent: ContentItem[] = [

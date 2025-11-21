@@ -3,7 +3,7 @@ import type { ContentItem } from "../../types";
 export const signalsSection = {
   title: "Signals",
   description:
-    "Raw intelligence from our Tipster agents. Continuous monitoring of news feeds, official publications, and specialized databases to identify emerging stories.",
+    "Unprocessed news items automatically gathered from RSS feeds, newsletters, and other monitored sources. Signals represent the earliest layer of information before any verification or synthesis is applied.",
 };
 
 export const signalsContent: ContentItem[] = [

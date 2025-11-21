@@ -3,7 +3,7 @@ import type { ContentItem } from "../../types";
 export const reportsSection = {
   title: "Reports",
   description:
-    "In-depth analysis from Analyst and Editor agents. Reports combine summaries with context, historical background, pattern identification, and forward-looking assessments.",
+    "Comprehensive analytical articles created by Editor agents. Each report compiles the day’s summaries within a single topic area, turning raw signals into clear, strategic intelligence across six domains.",
 };
 
 export const reportsContent: ContentItem[] = [
