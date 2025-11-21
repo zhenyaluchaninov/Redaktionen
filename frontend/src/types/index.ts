@@ -16,4 +16,25 @@ export interface ContentItem {
   signals?: number;
   sources?: number;
   confidence?: number;
+  readingTimeMinutes?: number;
+  sourceList?: ReportSource[];
+}
+
+export interface ReportSource {
+  id: number;
+  url: string;
+  type: string;
+  factor?: string;
+  source?: string;
+}
+
+export interface Report extends ContentItem {
+  lede?: string;
+  body: string;
+  createdAt: string;
+  author?: string;
+  type?: string;
+  factors?: string[];
+  perspective?: string | null;
+  sourceList?: ReportSource[];
 }
