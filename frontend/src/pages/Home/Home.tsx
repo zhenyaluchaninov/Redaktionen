@@ -1,10 +1,19 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import { useNavigate } from "react-router-dom";
+import { fetchAgents } from "../../api/agents";
+import { fetchReports } from "../../api/reports";
+import { fetchSignals } from "../../api/signals";
+import { fetchSummaries } from "../../api/summaries";
 import type { ThemeId, ThemeOption } from "../../data/themes";
 import { themes } from "../../data/themes";
 import { useDarkMode } from "../../hooks/useDarkMode";
+import type { Agent } from "../../types";
 import { getColorClasses } from "../../utils/getColorClasses";
+import { mapFactorToTheme } from "../../utils/themeMappings";
 import { getArrowVariants } from "./animations";
 
 type IconProps = {
@@ -18,13 +27,16 @@ type AgentChannel = {
 
 type AgentProfile = {
   name: string;
-  title: string;
+  title?: string;
   bio: string;
   modelNote?: string;
   prompt?: string;
   channels?: AgentChannel[];
   themeFocus?: ThemeId[];
+  avatarUrl?: string;
 };
+
+type AgentType = "tipster" | "correspondent" | "editor";
 
 type PipelineStep = {
   id: string;
@@ -37,6 +49,13 @@ type PipelineStep = {
   };
   showThemes?: boolean;
   agent?: AgentProfile;
+  highlightPromptBlock?: boolean;
+  targetPath?: string;
+};
+
+type PipelineStepConfig = Omit<PipelineStep, "agent"> & {
+  agentType?: AgentType;
+  fallbackAgent?: AgentProfile;
 };
 
 const BustIcon = ({ className }: IconProps) => (
@@ -63,6 +82,30 @@ const RssIcon = ({ className }: IconProps) => (
       strokeLinejoin="round"
       strokeWidth={1.5}
       d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"
+    />
+  </svg>
+);
+
+const GlobeIcon = ({ className }: IconProps) => (
+  <svg
+    className={`w-5 h-5 ${className ?? ""}`}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.6}
+      d="M3 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9-9 4.03-9 9Z"
+    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3.6 9h16.8" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3.6 15h16.8" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.6}
+      d="M12 3c-2 2.4-3 5.1-3 9s1 6.6 3 9c2-2.4 3-5.1 3-9s-1-6.6-3-9Z"
     />
   </svg>
 );
@@ -115,22 +158,87 @@ const MailIcon = ({ className }: IconProps) => (
   </svg>
 );
 
-const pipelineSteps: PipelineStep[] = [
+const capitalizeWord = (value?: string | null) => {
+  if (!value) return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+const allowedAngles = new Set([
+  "political",
+  "economic",
+  "social",
+  "technological",
+  "environmental",
+  "legal",
+]);
+
+const mapAngleToThemeId = (angle?: string | null): ThemeId | undefined => {
+  if (!angle) {
+    return undefined;
+  }
+
+  const normalized = angle.toLowerCase();
+  if (!allowedAngles.has(normalized)) {
+    return undefined;
+  }
+
+  return mapFactorToTheme(normalized);
+};
+
+const formatModelNote = (llm?: Agent["llm"]) => {
+  if (!llm) return undefined;
+
+  const parts = [llm.model, llm.provider].filter(Boolean);
+  if (parts.length === 0) return undefined;
+
+  return `Model: ${parts.join(" / ")}`;
+};
+
+const trimModelLabel = (value?: string) => {
+  if (!value) return undefined;
+  return value.replace(/^Model:\s*/i, "").trim() || value;
+};
+
+const mapAgentToProfile = (
+  agent: Agent,
+  themeLegend: ThemeOption[]
+): AgentProfile => {
+  const themeId = mapAngleToThemeId(agent.angle);
+  const themeName = themeId
+    ? themeLegend.find((theme) => theme.id === themeId)?.name
+    : undefined;
+
+  const role = capitalizeWord(agent.type);
+  const title = themeName ? `${themeName} ${role}` : role;
+
+  return {
+    name: agent.name,
+    title,
+    bio: agent.description,
+    prompt: agent.prompt ?? undefined,
+    modelNote: formatModelNote(agent.llm),
+    themeFocus: themeId ? [themeId] : undefined,
+    avatarUrl: agent.avatarUrl ?? undefined,
+  };
+};
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+const pipelineSteps: PipelineStepConfig[] = [
   {
     id: "sources",
     title: "Sources",
-    summary: "RSS feeds and email newsletters ingested continuously.",
-    icon: <RssIcon />,
-    metric: { value: 12, label: "active" },
+    summary: "Live RSS feeds and newsletters ingest.",
+    icon: <GlobeIcon />,
   },
   {
     id: "tipster",
     title: "Tipster agent",
-    summary:
-      "Filters, deduplicates, and tags new items by theme before they turn into signals.",
+    summary: "Filters, deduplicates, and tags news items.",
     icon: <BustIcon />,
     showThemes: true,
-    agent: {
+    agentType: "tipster",
+    fallbackAgent: {
       name: "Greger Palki",
       title: "Politics tipster",
       bio: "Monitors Swedish and EU policy streams, catching committee notes, pressers, and opinion swings early.",
@@ -148,18 +256,18 @@ const pipelineSteps: PipelineStep[] = [
   {
     id: "signals",
     title: "Signals",
-    summary: "Raw news cards ready for tagging, triaged in chronological order.",
+    summary: "Raw news cards, triaged in chronological order.",
     icon: <DocumentIcon />,
-    metric: { value: 247, label: "queued" },
+    targetPath: "/signals?sources=1",
   },
   {
     id: "correspondent",
     title: "Correspondent agent",
-    summary:
-      "Adds context, verifies sources, and drafts lean abstracts with theme coverage.",
+    summary: "Adds context, verifies sources, and drafts abstracts.",
     icon: <BustIcon />,
     showThemes: true,
-    agent: {
+    agentType: "correspondent",
+    fallbackAgent: {
       name: "Alexandra Strom",
       title: "Politics correspondent",
       bio: "15 years covering EU policy and international relations; writes concise explainers on why a signal matters.",
@@ -168,21 +276,22 @@ const pipelineSteps: PipelineStep[] = [
         "Cluster matching signals, outline background, and produce two-sentence abstracts with potential impact.",
       themeFocus: ["politics", "economy", "social"],
     },
+    highlightPromptBlock: true,
   },
   {
     id: "summaries",
     title: "Summaries",
-    summary: "Crisp abstracts ready for editorial review.",
+    summary: "Crisp abstracts queued for editorial review.",
     icon: <DocumentIcon />,
-    metric: { value: 156, label: "ready" },
+    targetPath: "/summaries",
   },
   {
     id: "editor",
     title: "Editor agent",
-    summary:
-      "Synthesizes summaries, checks claims, and enforces the newsroom tone.",
+    summary: "Synthesizes summaries, checks claims, and enforces tone.",
     icon: <BustIcon />,
-    agent: {
+    agentType: "editor",
+    fallbackAgent: {
       name: "Ruben Razz",
       title: "PESTEL editor",
       bio: "Assembles sources, verifies facts, and shapes balanced story arcs with supporting quotes.",
@@ -191,27 +300,60 @@ const pipelineSteps: PipelineStep[] = [
         "Rewrite drafts into newsroom-ready reports, note evidence, and call out missing context to request follow-ups.",
       themeFocus: ["tech", "economy", "law", "ecology"],
     },
+    highlightPromptBlock: true,
   },
   {
     id: "reports",
     title: "Reports",
-    summary: "Publish-ready articles delivered to News and Research pages.",
+    summary: "Publish-ready articles for the site.",
     icon: <NewspaperIcon />,
-    metric: { value: 6, label: "live now" },
+    targetPath: "/reports",
   },
 ];
 
-const AgentAvatar = () => (
-  <div className="w-12 h-12 rounded-full flex items-center justify-center text-gray-500">
-    <BustIcon className="w-8 h-8" />
-  </div>
-);
+type AgentAvatarProps = {
+  avatarUrl?: string;
+  name: string;
+  isDarkMode: boolean;
+};
+
+const AgentAvatar = ({ avatarUrl, name, isDarkMode }: AgentAvatarProps) => {
+  const fallbackClasses = isDarkMode
+    ? "bg-gray-800 text-gray-200 border border-gray-700"
+    : "bg-gray-100 text-gray-500 border border-gray-200";
+
+  if (avatarUrl) {
+    return (
+      <div
+        className={`w-12 h-12 rounded-full overflow-hidden border ${
+          isDarkMode ? "border-gray-700" : "border-gray-200"
+        }`}
+      >
+        <img
+          src={avatarUrl}
+          alt={`${name} avatar`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`w-12 h-12 rounded-full flex items-center justify-center ${fallbackClasses}`}
+    >
+      <BustIcon className="w-8 h-8" />
+    </div>
+  );
+};
 
 type PipelineStepCardProps = {
   step: PipelineStep;
   delayMs: number;
   themeLegend: ThemeOption[];
   isDarkMode: boolean;
+  onSelect?: (step: PipelineStep) => void;
 };
 
 const PipelineStepCard = ({
@@ -219,6 +361,7 @@ const PipelineStepCard = ({
   delayMs,
   themeLegend,
   isDarkMode,
+  onSelect,
 }: PipelineStepCardProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -235,6 +378,8 @@ const PipelineStepCard = ({
     ? "bg-gray-800 text-gray-200"
     : "bg-gray-100 text-gray-700";
   const hasAgent = Boolean(step.agent);
+
+  const clickable = Boolean(onSelect);
 
   const cardBackground = isDarkMode ? "bg-gray-900" : "bg-white";
   const cardBorder =
@@ -262,14 +407,29 @@ const PipelineStepCard = ({
       }`}
     >
       <div
-        className={`${cardBackground} ${cardBorder} rounded-xl shadow-sm p-4`}
+        className={`${cardBackground} ${cardBorder} rounded-xl shadow-sm p-4 ${
+          clickable ? "cursor-pointer" : ""
+        }`}
         style={gradientBorderStyle}
+        onClick={clickable ? () => onSelect?.(step) : undefined}
+        role={clickable ? "button" : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        onKeyDown={
+          clickable
+            ? (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelect?.(step);
+                }
+              }
+            : undefined
+        }
       >
-        <div className="flex items-start gap-3">
-          <div
-            className={`w-11 h-11 rounded-lg flex items-center justify-center ${
-              isDarkMode ? "bg-gray-800 text-gray-100" : "bg-gray-100 text-gray-700"
-            }`}
+              <div className="flex items-start gap-3">
+                <div
+                  className={`w-11 h-11 rounded-lg flex items-center justify-center ${
+                    isDarkMode ? "bg-gray-800 text-gray-100" : "bg-gray-100 text-gray-700"
+                  }`}
           >
             {step.icon}
           </div>
@@ -308,16 +468,19 @@ const PipelineStepCard = ({
           ) : null}
         </div>
 
-        {step.agent ? (
-          <div
-            className={`mt-2 pt-2 border-t ${
-              isDarkMode ? "border-gray-800" : "border-gray-100"
-            }`}
-          >
+          {step.agent ? (
+            <div
+              className={`mt-2 pt-2 border-t ${
+                isDarkMode ? "border-gray-800" : "border-gray-100"
+              }`}
+            >
             <div className="flex justify-center">
               <button
                 type="button"
-                onClick={() => setExpanded((prev) => !prev)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setExpanded((prev) => !prev);
+                }}
                 className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-normal ${
                   isDarkMode
                     ? "text-gray-400 hover:text-gray-300"
@@ -336,12 +499,18 @@ const PipelineStepCard = ({
             {expanded ? (
               <div className="mt-2 space-y-3 text-start">
                 <div className="flex items-start gap-3">
-                  <AgentAvatar />
+                  <AgentAvatar
+                    avatarUrl={step.agent.avatarUrl}
+                    name={step.agent.name}
+                    isDarkMode={isDarkMode}
+                  />
                   <div>
                     <p className={`text-base font-semibold ${heading}`}>
                       {step.agent.name}
                     </p>
-                    <p className={`text-sm ${muted}`}>{step.agent.title}</p>
+                    <p className={`text-sm ${muted}`}>
+                      {step.agent.title ?? step.title}
+                    </p>
                   </div>
                 </div>
 
@@ -409,40 +578,55 @@ const PipelineStepCard = ({
                   </div>
                 ) : null}
 
-                {step.agent.modelNote ? (
+                {(step.agent.modelNote || step.agent.prompt) && (
                   <div
-                    className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg ${chipBg}`}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: "linear-gradient(135deg, #A855F7 0%, #EC4899 100%)" }}
-                    />
-                    {step.agent.modelNote}
-                  </div>
-                ) : null}
-
-                {step.agent.prompt ? (
-                  <div
-                    className={`border rounded-xl p-3 ${
-                      isDarkMode
-                        ? "bg-gray-900 border-gray-800"
-                        : "bg-gray-50 border-gray-200"
+                    className={`mt-4 rounded-xl border p-4 ${
+                      isDarkMode ? "bg-gray-900 border-gray-800" : "bg-gray-50 border-gray-200"
                     }`}
                   >
-                    <p
-                      className={`text-xs uppercase font-semibold tracking-wide mb-1 ${muted}`}
-                    >
-                      System directive
-                    </p>
-                    <p
-                      className={`text-sm leading-snug ${
-                        isDarkMode ? "text-gray-200" : "text-gray-800"
-                      }`}
-                    >
-                      {step.agent.prompt}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p
+                        className={`text-base font-semibold ${
+                          isDarkMode ? "text-gray-100" : "text-gray-900"
+                        }`}
+                      >
+                        Promt
+                      </p>
+                      {step.agent.modelNote ? (
+                        <span
+                          className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border ${
+                            isDarkMode ? "bg-gray-800 text-gray-100 border-gray-700" : "bg-white text-gray-700 border-gray-200"
+                          }`}
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ background: "linear-gradient(135deg, #A855F7 0%, #EC4899 100%)" }}
+                          />
+                          {trimModelLabel(step.agent.modelNote)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {step.agent.prompt ? (
+                      <div
+                        className={`mt-3 rounded-lg p-3 font-mono text-[13px] leading-snug ${
+                          isDarkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-800"
+                        }`}
+                      >
+                        <ReactMarkdown
+                          components={{
+                            p: (props) => <p {...props} className="leading-snug" />,
+                            ul: (props) => <ul {...props} className="list-disc pl-5 space-y-1 leading-snug" />,
+                            ol: (props) => <ol {...props} className="list-decimal pl-5 space-y-1 leading-snug" />,
+                            li: (props) => <li {...props} className="leading-snug" />,
+                          }}
+                        >
+                          {step.agent.prompt}
+                        </ReactMarkdown>
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
+                )}
               </div>
             ) : null}
           </div>
@@ -478,11 +662,127 @@ const ArrowConnector = ({ isActive }: ArrowConnectorProps) => {
 
 const Home = () => {
   const { isDarkMode } = useDarkMode();
+  const navigate = useNavigate();
+  const [showSourcesPanel, setShowSourcesPanel] = useState(false);
   const themeLegend = useMemo(
     () => themes.filter((theme) => theme.id !== "all"),
     []
   );
-  const totalConnectors = pipelineSteps.length - 1;
+  const {
+    data: agents = [],
+  } = useQuery<Agent[]>({
+    queryKey: ["agents"],
+    queryFn: fetchAgents,
+    staleTime: ONE_DAY_MS,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const { data: signals = [] } = useQuery({
+    queryKey: ["signals"],
+    queryFn: fetchSignals,
+    staleTime: ONE_DAY_MS,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const { data: summaries = [] } = useQuery({
+    queryKey: ["summaries"],
+    queryFn: fetchSummaries,
+    staleTime: ONE_DAY_MS,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const { data: reports = [] } = useQuery({
+    queryKey: ["reports"],
+    queryFn: fetchReports,
+    staleTime: ONE_DAY_MS,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const sourcesByHost = useMemo(() => {
+    const map = new Map<string, string>();
+
+    signals.forEach((signal) => {
+      if (!signal.sourceUrl) return;
+      try {
+        const host = new URL(signal.sourceUrl).hostname.replace(/^www\./, "");
+        if (!map.has(host)) {
+          map.set(host, host);
+        }
+      } catch {
+        // ignore malformed URLs
+      }
+    });
+
+    return map;
+  }, [signals]);
+
+  const sourcesCount = sourcesByHost.size;
+
+  const agentsByType = useMemo(() => {
+    const map = new Map<AgentType, Agent>();
+
+    agents.forEach((agent) => {
+      const type = agent.type as AgentType;
+      if (type === "tipster" || type === "correspondent" || type === "editor") {
+        map.set(type, agent);
+      }
+    });
+
+    return map;
+  }, [agents]);
+
+  const resolvedPipelineSteps = useMemo<PipelineStep[]>(() => {
+    return pipelineSteps.map((step) => {
+      const { agentType, fallbackAgent, ...rest } = step;
+
+      let metricValue = step.metric?.value;
+      let metricLabel = step.metric?.label;
+
+      if (step.id === "sources") {
+        metricValue = sourcesCount;
+        metricLabel = "sources";
+      }
+
+      if (step.id === "signals") {
+        metricValue = signals.length;
+        metricLabel = "signals";
+      }
+
+      if (step.id === "summaries") {
+        metricValue = summaries.length;
+        metricLabel = "summaries";
+      }
+
+      if (step.id === "reports") {
+        metricValue = reports.length;
+        metricLabel = "reports";
+      }
+
+      const metric = metricValue !== undefined ? { value: metricValue, label: metricLabel } : undefined;
+
+      if (!agentType) {
+        return { ...rest, metric };
+      }
+
+      const apiAgent = agentsByType.get(agentType);
+      const agentProfile = apiAgent ? mapAgentToProfile(apiAgent, themeLegend) : fallbackAgent;
+
+      return { ...rest, agent: agentProfile, metric };
+    });
+  }, [agentsByType, themeLegend, reports.length, signals.length, sourcesCount, summaries.length]);
+
+  const sourceItems = useMemo(() => {
+    return Array.from(sourcesByHost.keys()).map((host) => ({
+      name: host,
+      url: `https://${host}`,
+    }));
+  }, [sourcesByHost]);
+
+  const totalConnectors = resolvedPipelineSteps.length - 1;
   const [activeArrowIndex, setActiveArrowIndex] = useState(0);
 
   useEffect(() => {
@@ -516,13 +816,23 @@ const Home = () => {
       </section>
 
       <section className="mt-10 space-y-2 flex flex-col items-center">
-        {pipelineSteps.map((step, index) => (
+        {resolvedPipelineSteps.map((step, index) => (
           <Fragment key={step.id}>
             <PipelineStepCard
               step={step}
               delayMs={index * 90}
               themeLegend={themeLegend}
               isDarkMode={isDarkMode}
+              onSelect={(selectedStep) => {
+                if (selectedStep.id === "sources") {
+                  setShowSourcesPanel(true);
+                  return;
+                }
+
+                if (selectedStep.targetPath) {
+                  navigate(selectedStep.targetPath);
+                }
+              }}
             />
             {index < pipelineSteps.length - 1 ? (
               <ArrowConnector isActive={index === activeArrowIndex} />
@@ -539,6 +849,74 @@ const Home = () => {
         Use "Show agent details" to expand prompts, channels, and theme focus for
         each AI colleague.
       </p>
+
+      <div
+        className={`fixed right-4 top-24 bottom-6 z-30 w-[calc(100%-2rem)] max-w-[420px] transition-transform duration-300 ${
+          showSourcesPanel ? "translate-x-0" : "translate-x-full pointer-events-none"
+        }`}
+        aria-label="Sources panel"
+      >
+        <div
+          className={`h-full overflow-hidden rounded-2xl border shadow-xl ${
+            isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+          }`}
+        >
+          <div
+            className={`flex items-center justify-between px-4 py-3 border-b ${
+              isDarkMode ? "border-gray-800" : "border-gray-200"
+            }`}
+          >
+            <div>
+              <p className={`text-base font-semibold ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
+                Sources
+              </p>
+              <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                {sourceItems.length} unique feeds in signals
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSourcesPanel(false)}
+              className={`text-xs px-2 py-1 rounded-md border ${
+                isDarkMode
+                  ? "border-gray-800 text-gray-300 hover:border-gray-700"
+                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              Close
+            </button>
+          </div>
+
+          <div className="h-full overflow-y-auto px-4 py-3 space-y-2">
+            {sourceItems.length === 0 ? (
+              <p className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
+                No sources found yet.
+              </p>
+            ) : (
+              sourceItems.map((source) => (
+                <a
+                  key={`${source.name}-${source.url ?? source.name}`}
+                  href={source.url ?? undefined}
+                  target={source.url ? "_blank" : undefined}
+                  rel={source.url ? "noreferrer" : undefined}
+                  className={`block rounded-xl px-3 py-2 border ${
+                    isDarkMode
+                      ? "border-gray-800 bg-gray-900 hover:border-gray-700 text-gray-100"
+                      : "border-gray-200 bg-white hover:border-gray-300 text-gray-800"
+                  }`}
+                >
+                  <p className="text-sm font-semibold">{source.name}</p>
+                  {source.url ? (
+                    <p className={`text-xs truncate ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                      {source.url}
+                    </p>
+                  ) : null}
+                </a>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -38,3 +38,18 @@ export interface Report extends ContentItem {
   perspective?: string | null;
   sourceList?: ReportSource[];
 }
+
+export interface Agent {
+  id: string;
+  type: string;
+  name: string;
+  description: string;
+  prompt?: string | null;
+  agencyId?: string | null;
+  avatarUrl?: string | null;
+  llm?: {
+    provider?: string;
+    model?: string;
+  } | null;
+  angle?: string | null;
+}

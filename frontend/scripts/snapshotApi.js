@@ -14,6 +14,7 @@ const endpoints = [
   { endpoint: "signals", filename: "signals.json" },
   { endpoint: "reports", filename: "reports.json" },
   { endpoint: "summaries", filename: "summaries.json" },
+  { endpoint: "agents", filename: "agents.json" },
 ];
 
 const ensureOutputDir = () => fs.mkdir(OUTPUT_DIR, { recursive: true });
