@@ -149,26 +149,6 @@ export const Header = () => {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                className={`text-sm ${
-                  isDarkMode
-                    ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                className="text-white text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #A855F7 0%, #EC4899 100%)",
-                }}
-              >
-                Subscribe
-              </button>
-              <button
-                type="button"
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-lg transition-colors ${
                   isDarkMode
